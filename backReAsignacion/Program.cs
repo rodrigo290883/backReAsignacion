@@ -10,16 +10,9 @@ namespace backReAsignacion
         private static IConfiguration _iconfiguration;
         static void Main(string[] args)
         {
-            if(args.Length == 0)
-            {
+            
                 GetAppSettingsFile();
-                ProcesaRegistrosPeriodo("");
-            }
-            else
-            {
-                GetAppSettingsFile();
-                ProcesaRegistrosPeriodo(args[0]);
-            }
+                ProcesaReAsignaciones();
                   
         }
         static void GetAppSettingsFile()
@@ -29,13 +22,16 @@ namespace backReAsignacion
                                  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
             _iconfiguration = builder.Build();
         }
-        static void ProcesaRegistrosPeriodo(string inicio)
+        static void ProcesaReAsignaciones()
         {
             var SolDAL = new SolicitudDAL(_iconfiguration);
             var lista  =  SolDAL.obtieneSolicitudes();
+            var logDal = new LogDAL(_iconfiguration);
             foreach (Solicitud renglon in lista)
             {
+                var log = new LogClass { idsap = renglon.idsap, log = "Re Asignacion de solicitud con folio: "+renglon.folio+" al aprobador con idsap: "+renglon.idsap_aprobador ,fecha_creacion = renglon.fecha_asignacion, idsap_creacion=101010   };
                 Console.WriteLine(renglon.folio + " - " + renglon.idsap + " - reAsignado:" + renglon.reasignado + " - notificado:" + renglon.notificado);
+                logDal.createLog(log);
             }
 
             Console.WriteLine("Final del Proceso");

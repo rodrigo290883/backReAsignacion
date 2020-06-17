@@ -23,30 +23,32 @@ namespace backReAsignacion.DAL
 
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                SqlCommand cmd = new SqlCommand("SELECT s.folio,s.idsap,s.fecha_inicio ,s.fecha_fin ,s.estatus , est.descripcion ,s.tipo_solicitud ,tip.solicitud ,s.observacion_solicitante ,sol.nombre,apr.idsap_padre,apr.email_line,s.fecha_solicitud "+
+                SqlCommand cmd = new SqlCommand("SELECT s.folio,s.idsap,s.fecha_inicio ,s.fecha_fin ,s.estatus , est.descripcion ,s.tipo_solicitud ,tip.solicitud ,s.observacion_solicitante ,sol.nombre,apr.idsap_padre,apr.email_line,s.fecha_solicitud,GETDATE() as fecha_creacion "+
                                                 "FROM solicitudes s LEFT JOIN empleados sol ON s.idsap = sol.idsap LEFT JOIN empleados apr ON s.idsap_aprobador = apr.idsap "+
                                                 "LEFT JOIN ctipos_solicitud tip ON s.tipo_solicitud = tip.id_tipo_solicitud LEFT JOIN cestatus est ON s.estatus = est.estatus "+
-                                                "WHERE s.fecha_inicio >= GETDATE() and DATEDIFF(day, s.ultima_notificacion, GETDATE()) >= @dias", con);
+                                                "WHERE s.fecha_inicio >= GETDATE() and DATEDIFF(day, s.fecha_asignacion, GETDATE()) >= @dias", con);
                 cmd.Parameters.AddWithValue("@dias", 5);
 
                 con.Open();
                 SqlDataReader rdr = cmd.ExecuteReader();
                 while (rdr.Read())
                 {
-                    var aux = new Solicitud
-                    {
-                        folio = Convert.ToInt32(rdr[0]),
-                        idsap = Convert.ToInt32(rdr[1]),
-                        fecha_inicio = Convert.ToDateTime(rdr.IsDBNull(2) ? null : rdr[2]),
-                        fecha_fin = Convert.ToDateTime(rdr.IsDBNull(3) ? null : rdr[3]),
-                        estatus_descripcion = rdr[5].ToString(),
-                        solicitud = rdr[7].ToString(),
-                        observacion_solicitante = rdr[8].ToString(),
-                        nombre = rdr[9].ToString(),
-                        idsap_aprobador = Convert.ToInt32(rdr[10]),
-                        email_aprobador = rdr[11].ToString(),
-                        fecha_solicitud = Convert.ToDateTime(rdr.IsDBNull(12) ? null : rdr[12])
-                    };
+                    var aux = new Solicitud();
+
+                    aux.folio = Convert.ToInt32(rdr[0]);
+                    aux.idsap = Convert.ToInt32(rdr[1]);
+                    aux.fecha_inicio = Convert.ToDateTime(rdr.IsDBNull(2) ? null : rdr[2]);
+                    aux.fecha_fin = Convert.ToDateTime(rdr.IsDBNull(3) ? null : rdr[3]);
+                    aux.estatus_descripcion = rdr[5].ToString();
+                    aux.solicitud = rdr[7].ToString();
+                    aux.observacion_solicitante = rdr[8].ToString();
+                    aux.nombre = rdr[9].ToString();
+                    aux.idsap_aprobador = Convert.ToInt32(rdr[10]);
+                    aux.email_aprobador = rdr[11].ToString();
+                    aux.fecha_solicitud = Convert.ToDateTime(rdr.IsDBNull(12) ? null : rdr[12]);
+                    aux.fecha_asignacion = Convert.ToDateTime(rdr.IsDBNull(13) ? null : rdr[13]);
+
+
 
                     if (reAsignar(aux))
                     {
@@ -69,7 +71,7 @@ namespace backReAsignacion.DAL
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                SqlCommand cmd = new SqlCommand("UPDATE solicitudes SET idsap_aprobador=@idsap_aprobador, ultima_notificacion= GETDATE() WHERE folio = @folio;", con);
+                SqlCommand cmd = new SqlCommand("UPDATE solicitudes SET idsap_aprobador=@idsap_aprobador, ultima_notificacion= GETDATE(), fecha_asignacion = GETDATE() WHERE folio = @folio;", con);
                 cmd.Parameters.AddWithValue("@idsap_aprobador", sol.idsap_aprobador);
                 cmd.Parameters.AddWithValue("@folio", sol.folio);
 
