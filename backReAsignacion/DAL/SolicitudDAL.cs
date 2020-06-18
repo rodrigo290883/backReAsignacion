@@ -43,25 +43,28 @@ namespace backReAsignacion.DAL
                     aux.solicitud = rdr[7].ToString();
                     aux.observacion_solicitante = rdr[8].ToString();
                     aux.nombre = rdr[9].ToString();
-                    aux.idsap_aprobador = Convert.ToInt32(rdr[10]);
-                    aux.email_aprobador = rdr[11].ToString();
+                    aux.idsap_aprobador = Convert.ToInt32(rdr.IsDBNull(10)? null: rdr[10]);
+                    aux.email_aprobador = rdr.IsDBNull(11)? null :rdr[11].ToString();
                     aux.fecha_solicitud = Convert.ToDateTime(rdr.IsDBNull(12) ? null : rdr[12]);
                     aux.fecha_asignacion = Convert.ToDateTime(rdr.IsDBNull(13) ? null : rdr[13]);
 
 
-
-                    if (reAsignar(aux))
+                    if (aux.idsap_aprobador != 0)
                     {
-                        aux.reasignado = true;
 
-                        aux.notificado = notificarAsignacion(aux);
-                    }
-                    else
-                    {
-                        aux.reasignado = false;
-                    }
+                        if (reAsignar(aux))
+                        {
+                            aux.reasignado = true;
 
-                    listaSolicitudes.Add(aux);
+                            aux.notificado = notificarAsignacion(aux);
+                        }
+                        else
+                        {
+                            aux.reasignado = false;
+                        }
+
+                        listaSolicitudes.Add(aux);
+                    }
                 }
             }
                 return listaSolicitudes;
