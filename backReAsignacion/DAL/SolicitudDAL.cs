@@ -26,7 +26,7 @@ namespace backReAsignacion.DAL
                 SqlCommand cmd = new SqlCommand("SELECT s.folio,s.idsap,s.fecha_inicio ,s.fecha_fin ,s.estatus , est.descripcion ,s.tipo_solicitud ,tip.solicitud ,s.observacion_solicitante ,sol.nombre,apr.idsap_padre,apr.email_line,s.fecha_solicitud,GETDATE() as fecha_creacion "+
                                                 "FROM solicitudes s LEFT JOIN empleados sol ON s.idsap = sol.idsap LEFT JOIN empleados apr ON s.idsap_aprobador = apr.idsap "+
                                                 "LEFT JOIN ctipos_solicitud tip ON s.tipo_solicitud = tip.id_tipo_solicitud LEFT JOIN cestatus est ON s.estatus = est.estatus "+
-                                                "WHERE s.fecha_inicio >= GETDATE() and DATEDIFF(day, s.fecha_asignacion, GETDATE()) >= @dias", con);
+                                                "WHERE s.estatus = 0 and s.fecha_inicio >= GETDATE() and DATEDIFF(day, s.fecha_asignacion, GETDATE()) >= @dias", con);
                 cmd.Parameters.AddWithValue("@dias", 5);
 
                 con.Open();
