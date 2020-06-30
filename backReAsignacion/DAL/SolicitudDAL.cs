@@ -23,7 +23,7 @@ namespace backReAsignacion.DAL
 
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                SqlCommand cmd = new SqlCommand("SELECT s.folio,s.idsap,s.fecha_inicio ,s.fecha_fin ,s.estatus , est.descripcion ,s.tipo_solicitud ,tip.solicitud ,s.observacion_solicitante ,sol.nombre,apr.idsap_padre,apr.email_line,s.fecha_solicitud,GETDATE() as fecha_creacion "+
+                SqlCommand cmd = new SqlCommand("SELECT s.folio,s.idsap,s.fecha_inicio ,s.fecha_fin ,s.estatus , est.descripcion ,s.tipo_solicitud ,tip.solicitud ,s.observacion_solicitante ,sol.nombre,apr.idsap_padre,apr.email_line,s.fecha_solicitud,GETDATE() as fecha_creacion, apr.nombre_line "+
                                                 "FROM solicitudes s LEFT JOIN empleados sol ON s.idsap = sol.idsap LEFT JOIN empleados apr ON s.idsap_aprobador = apr.idsap "+
                                                 "LEFT JOIN ctipos_solicitud tip ON s.tipo_solicitud = tip.id_tipo_solicitud LEFT JOIN cestatus est ON s.estatus = est.estatus "+
                                                 "WHERE s.estatus = 0 and s.fecha_inicio >= GETDATE() and DATEDIFF(day, s.fecha_asignacion, GETDATE()) >= @dias", con);
@@ -47,7 +47,7 @@ namespace backReAsignacion.DAL
                     aux.email_aprobador = rdr.IsDBNull(11)? null :rdr[11].ToString();
                     aux.fecha_solicitud = Convert.ToDateTime(rdr.IsDBNull(12) ? null : rdr[12]);
                     aux.fecha_asignacion = Convert.ToDateTime(rdr.IsDBNull(13) ? null : rdr[13]);
-
+                    aux.nombre_aprobador = rdr.IsDBNull(14) ? null : rdr[14].ToString();
 
                     if (aux.idsap_aprobador != 0)
                     {
@@ -74,8 +74,10 @@ namespace backReAsignacion.DAL
         {
             using (SqlConnection con = new SqlConnection(_connectionString))
             {
-                SqlCommand cmd = new SqlCommand("UPDATE solicitudes SET idsap_aprobador=@idsap_aprobador, ultima_notificacion= GETDATE(), fecha_asignacion = GETDATE() WHERE folio = @folio;", con);
+                SqlCommand cmd = new SqlCommand("UPDATE solicitudes SET idsap_aprobador=@idsap_aprobador,nombre_aprobador=@nombre_aprobador,email_aprobador=@email_aprobador, ultima_notificacion= GETDATE(), fecha_asignacion = GETDATE() WHERE folio = @folio;", con);
                 cmd.Parameters.AddWithValue("@idsap_aprobador", sol.idsap_aprobador);
+                cmd.Parameters.AddWithValue("@nombre_aprobador", sol.nombre_aprobador);
+                cmd.Parameters.AddWithValue("@email_aprobador", sol.email_aprobador);
                 cmd.Parameters.AddWithValue("@folio", sol.folio);
 
                 con.Open();
@@ -92,7 +94,7 @@ namespace backReAsignacion.DAL
             string folio = sol.folio.ToString();
             string empleado = sol.nombre;
             string id_empleado = sol.idsap.ToString();
-            string aprobador = sol.idsap_aprobador.ToString();
+            string aprobador = sol.nombre_aprobador.ToString();
             string destino = sol.email_aprobador;
             string solicitud = sol.solicitud;
             string fecha_inicio = sol.fecha_inicio.ToString();

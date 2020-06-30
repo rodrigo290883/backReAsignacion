@@ -17,6 +17,7 @@ namespace backReAsignacion.Models
         public string observacion_solicitante { get; set; }
         public Nullable<int> estatus { get; set; }
         public Nullable<int> idsap_aprobador { get; set; }
+        public string nombre_aprobador { get; set; }
         public string email_aprobador { get; set; }
         public bool reasignado { get; set; }
         public bool notificado { get; set; }
